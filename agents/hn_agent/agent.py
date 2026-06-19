@@ -9,6 +9,18 @@ from constants import (
     GEMINI_MODEL,
 )
 from tools.hackernews_tool import fetch_hn_posts
+from tools.storage import load_seen_ideas
+
+
+def get_seen_ideas_tool() -> str:
+    """
+    Return product ideas / pain points already processed in previous runs.
+    Use this to AVOID re-surfacing duplicates.
+
+    Returns:
+        JSON string with a "seen_ideas" list of names.
+    """
+    return json.dumps({"seen_ideas": load_seen_ideas()})
 
 
 def fetch_posts_tool(
@@ -43,16 +55,18 @@ hn_agent = Agent(
     instruction="""You are a Hacker News research specialist focused on discovering product opportunities.
 
 When activated:
-1. Use the fetch_posts_tool to get recent posts from Hacker News
-2. Analyze posts for:
+1. FIRST call get_seen_ideas_tool to see which ideas were already covered in past runs.
+2. Use the fetch_posts_tool to get recent posts from Hacker News
+3. Analyze posts for:
    - Repeated complaints or frustrations
    - "I wish there was a tool that..."
    - "Why doesn't X exist?" / "How do you all deal with..."
    - Workarounds people are using (signals unmet need)
    - High engagement posts (many comments/points = strong interest)
 
-3. Extract the TOP 10 raw product ideas/pain points
-4. For each idea output:
+4. Extract the TOP 5 raw product ideas/pain points.
+   SKIP any idea that is essentially the same as one in the seen_ideas list — we want fresh ideas.
+5. For each idea output:
    - Pain point summary (1-2 sentences)
    - Evidence (post titles/quotes that support it)
    - Source (ask_hn / show_hn / story) and link
@@ -60,5 +74,5 @@ When activated:
 
 Pass your findings to the researcher_agent for validation.
 """,
-    tools=[fetch_posts_tool],
+    tools=[get_seen_ideas_tool, fetch_posts_tool],
 )

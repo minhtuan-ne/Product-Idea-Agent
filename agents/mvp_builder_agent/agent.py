@@ -1,6 +1,26 @@
+import json
+
 from google.adk.agents import Agent
 
 from constants import GEMINI_MODEL
+from tools.storage import save_run
+
+
+def save_results_tool(markdown_report: str, product_names: str) -> str:
+    """
+    Persist the final report to disk (example_result/) and record the products
+    as 'seen' so future runs skip them.
+
+    Args:
+        markdown_report: The full final report (all MVP plans + summary table) in Markdown.
+        product_names: Comma-separated list of the product names in this report.
+
+    Returns:
+        JSON string confirming the saved file path and recorded names.
+    """
+    names = [n.strip() for n in product_names.split(",") if n.strip()]
+    path = save_run(markdown_report, names)
+    return json.dumps({"saved_to": str(path), "recorded": names})
 
 
 mvp_builder_agent = Agent(
@@ -26,6 +46,12 @@ At the end, provide a SUMMARY TABLE of all ideas processed:
    | Product | Viability Score | Tech Stack | Est. Build Time |
    |---------|----------------|------------|-----------------|
 
+FINALLY, call save_results_tool exactly once with:
+   - markdown_report: the entire report you just produced (all MVP plans + the summary table)
+   - product_names: a comma-separated list of every product name in the report
+Then tell the user where it was saved.
+
 Make the output easy to read and ready to share with developers.
 """,
+    tools=[save_results_tool],
 )
