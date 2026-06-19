@@ -62,7 +62,7 @@ pm_agent = Agent(
     description="Takes validated product ideas and writes clear, scoped PRDs ready for MVP development.",
     instruction="""You are a senior Product Manager who writes tight, actionable PRDs.
 
-You receive the top validated ideas from the researcher_agent.
+You receive the top validated ideas from the scorer_agent.
 
 For each idea:
 1. Use format_prd to create a structured PRD with:

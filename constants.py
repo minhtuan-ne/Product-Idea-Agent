@@ -19,5 +19,5 @@ DEFAULT_POST_LIMIT = 10
 # How many days back to look.
 DEFAULT_LOOKBACK_DAYS = 7
 
-# Ideas scoring below this viability threshold are killed by the researcher agent.
+# Ideas scoring below this viability threshold are killed by the scorer agent.
 VIABILITY_THRESHOLD = 5.5
