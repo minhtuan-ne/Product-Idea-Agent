@@ -6,8 +6,8 @@ from constants import (
     DEFAULT_HN_TAGS,
     DEFAULT_LOOKBACK_DAYS,
     DEFAULT_POST_LIMIT,
-    GEMINI_MODEL,
 )
+from model import get_model
 from tools.hackernews_tool import fetch_hn_posts
 from tools.storage import load_seen_ideas
 
@@ -50,7 +50,7 @@ def fetch_posts_tool(
 
 hn_agent = Agent(
     name="hn_agent",
-    model=GEMINI_MODEL,
+    model=get_model(),
     description="Scans Hacker News (Ask HN, Show HN, top stories) to find pain points, complaints, and unmet needs that could become product opportunities.",
     instruction="""You are a Hacker News research specialist focused on discovering product opportunities.
 

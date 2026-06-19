@@ -1,7 +1,8 @@
 from google.adk.agents import Agent
 from google.adk.tools import google_search
 
-from constants import GEMINI_MODEL, VIABILITY_THRESHOLD
+from constants import VIABILITY_THRESHOLD
+from model import get_model
 
 
 def score_idea(
@@ -45,7 +46,7 @@ def score_idea(
 
 researcher_agent = Agent(
     name="researcher_agent",
-    model=GEMINI_MODEL,
+    model=get_model(),
     description="Validates product ideas from Hacker News by researching existing solutions and scoring viability before passing to the PM.",
     instruction=f"""You are a product researcher and market analyst.
 

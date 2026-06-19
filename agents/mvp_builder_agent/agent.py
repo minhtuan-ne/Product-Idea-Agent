@@ -2,7 +2,7 @@ import json
 
 from google.adk.agents import Agent
 
-from constants import GEMINI_MODEL
+from model import get_model
 from tools.storage import save_run
 
 
@@ -25,7 +25,7 @@ def save_results_tool(markdown_report: str, product_names: str) -> str:
 
 mvp_builder_agent = Agent(
     name="mvp_builder_agent",
-    model=GEMINI_MODEL,
+    model=get_model(),
     description="Takes PRDs from the PM agent and generates complete MVP starter plans with code structure, tech stack, and implementation guidance.",
     instruction="""You are an expert software architect and senior developer who turns PRDs into actionable MVP starter plans.
 

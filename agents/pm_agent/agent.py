@@ -1,6 +1,6 @@
 from google.adk.agents import Agent
 
-from constants import GEMINI_MODEL
+from model import get_model
 
 
 def format_prd(
@@ -58,7 +58,7 @@ def format_prd(
 
 pm_agent = Agent(
     name="pm_agent",
-    model=GEMINI_MODEL,
+    model=get_model(),
     description="Takes validated product ideas and writes clear, scoped PRDs ready for MVP development.",
     instruction="""You are a senior Product Manager who writes tight, actionable PRDs.
 
