@@ -6,4 +6,10 @@ __pycache__/
 *.egg-info/
 dist/
 .DS_Store
+
+# ADK runtime session store (local state, never commit)
+.adk/
+*.db
+
+# Saved run outputs (local idea library)
 example_result/*.json
