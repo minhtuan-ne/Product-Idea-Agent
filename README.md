@@ -4,14 +4,121 @@ An AI pipeline that scans Hacker News for pain points, validates ideas, writes P
 
 ## Pipeline
 
-```
-HN Agent → Researcher Agent → PM Agent → MVP Builder
+A `SequentialAgent` orchestrator runs five specialized agents in a fixed order. Each agent's output feeds the next.
+
+```mermaid
+flowchart LR
+    Start([User: start]) --> HN
+
+    subgraph orchestrator["Orchestrator (SequentialAgent)"]
+        direction LR
+        HN["HN Agent"]
+        Researcher["Researcher Agent"]
+        Scorer["Scorer Agent"]
+        PM["PM Agent"]
+        MVP["MVP Builder"]
+        HN --> Researcher --> Scorer --> PM --> MVP
+    end
+
+    MVP --> Done([Saved report])
 ```
 
-1. **HN Agent** — Scans Hacker News (Ask HN, Show HN, top stories) for pain points and complaints
-2. **Researcher Agent** — Validates ideas via Google Search and scores viability (kills weak ideas)
-3. **PM Agent** — Writes scoped PRDs for top validated ideas
-4. **MVP Builder Agent** — Generates complete MVP starter plans (tech stack, structure, code)
+### What each agent does
+
+| Step | Agent | Role | Output |
+|------|-------|------|--------|
+| 1 | **HN Agent** | Scans Hacker News for pain points and complaints | Top 5 raw product ideas |
+| 2 | **Researcher Agent** | Validates ideas via Google Search (competitors, market signals) | Research notes per idea |
+| 3 | **Scorer Agent** | Scores viability and filters weak ideas | Top 3 ideas (score ≥ 5.5) |
+| 4 | **PM Agent** | Writes scoped PRDs for survivors | Structured PRDs |
+| 5 | **MVP Builder** | Generates starter plans and saves results | MVP plans + summary table |
+
+### Tools & external services
+
+```mermaid
+flowchart TB
+    subgraph hn["HN Agent"]
+        HN_Agent[HN Agent]
+        Seen["get_seen_ideas_tool"]
+        Fetch["fetch_posts_tool"]
+        HN_Agent --> Seen
+        HN_Agent --> Fetch
+    end
+
+    subgraph researcher["Researcher Agent"]
+        Res_Agent[Researcher Agent]
+        GSearch["google_search"]
+        Res_Agent --> GSearch
+    end
+
+    subgraph scorer["Scorer Agent"]
+        Score_Agent[Scorer Agent]
+        ScoreFn["score_idea"]
+        Score_Agent --> ScoreFn
+    end
+
+    subgraph pm["PM Agent"]
+        PM_Agent[PM Agent]
+        PRD["format_prd"]
+        PM_Agent --> PRD
+    end
+
+    subgraph mvp["MVP Builder"]
+        MVP_Agent[MVP Builder]
+        Save["save_results_tool"]
+        MVP_Agent --> Save
+    end
+
+    Fetch --> Algolia[(Algolia HN API)]
+    Seen --> Disk1[(seen_ideas.json)]
+    GSearch --> Google[(Google Search)]
+    Save --> Disk2[(example_result/)]
+
+    hn -->|"5 ideas"| researcher
+    researcher -->|"research notes"| scorer
+    scorer -->|"top 3"| pm
+    pm -->|"PRDs"| mvp
+```
+
+> **Why two research steps?** Gemini does not allow built-in tools (`google_search`) and custom function tools (`score_idea`) in the same agent request. The researcher handles web search; the scorer handles deterministic scoring.
+
+### Data flow (one run)
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Orch as Orchestrator
+    participant HN as HN Agent
+    participant Res as Researcher
+    participant Scr as Scorer
+    participant PM as PM Agent
+    participant MVP as MVP Builder
+    participant Store as example_result/
+
+    User->>Orch: start
+    Orch->>HN: run
+    HN->>HN: skip seen ideas, fetch posts
+    HN-->>Res: 5 pain-point ideas
+
+    loop each idea
+        Res->>Res: google_search competitors & market
+    end
+    Res-->>Scr: ideas + research notes
+
+    loop each idea
+        Scr->>Scr: score_idea (viability)
+    end
+    Scr-->>PM: top 3 (score ≥ 5.5)
+
+    loop each idea
+        PM->>PM: format_prd
+    end
+    PM-->>MVP: PRDs
+
+    MVP->>MVP: generate MVP plans
+    MVP->>Store: save_results_tool
+    MVP-->>User: report path + summary table
+```
 
 ## Requirements
 
@@ -57,7 +164,8 @@ product-ideas-agent/
 │   ├── hn_agent/                # Fetches Hacker News posts
 │   │   ├── __init__.py          #   thin re-export
 │   │   └── agent.py             #   agent + tool definition
-│   ├── researcher_agent/        # Validates + scores ideas
+│   ├── researcher_agent/        # Validates ideas via Google Search
+│   ├── scorer_agent/            # Scores viability, filters to top 3
 │   ├── pm_agent/                # Writes PRDs
 │   └── mvp_builder_agent/       # Generates MVP plans
 ├── tools/
