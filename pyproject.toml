@@ -1,19 +1,16 @@
 [project]
 name = "product-ideas-agent"
 version = "0.1.0"
-description = "AI pipeline that finds Reddit pain points and generates MVP ideas"
+description = "AI pipeline that finds Hacker News pain points and generates MVP ideas"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "google-adk>=1.0.0",
-    "praw>=7.7.0",
     "python-dotenv>=1.0.0",
     "pydantic-settings>=2.0.0",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
+# This is an application run via `adk web`, not an installable library,
+# so uv only needs to install the dependencies — don't build the project.
 [tool.uv]
-dev-dependencies = []
+package = false

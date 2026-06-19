@@ -1,3 +1,3 @@
-from .reddit_tool import fetch_reddit_posts
+from .hackernews_tool import fetch_hn_posts
 
-__all__ = ["fetch_reddit_posts"]
+__all__ = ["fetch_hn_posts"]

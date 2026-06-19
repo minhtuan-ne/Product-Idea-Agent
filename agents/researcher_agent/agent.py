@@ -46,10 +46,10 @@ def score_idea(
 researcher_agent = Agent(
     name="researcher_agent",
     model=GEMINI_MODEL,
-    description="Validates product ideas from Reddit by researching existing solutions and scoring viability before passing to the PM.",
+    description="Validates product ideas from Hacker News by researching existing solutions and scoring viability before passing to the PM.",
     instruction=f"""You are a product researcher and market analyst.
 
-You receive raw product ideas from the Reddit agent. Your job is to VALIDATE and FILTER them.
+You receive raw product ideas from the Hacker News agent. Your job is to VALIDATE and FILTER them.
 
 For each idea:
 1. Use google_search to check:

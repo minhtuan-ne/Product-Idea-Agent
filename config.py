@@ -14,13 +14,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # Gemini (used by every agent via ADK, and for the MVP builder)
+    # Gemini (used by every agent via ADK). The Hacker News source needs no keys.
     gemini_api_key: str = ""
-
-    # Reddit API
-    reddit_client_id: str = ""
-    reddit_client_secret: str = ""
-    reddit_user_agent: str = "product-ideas-agent/1.0"
 
 
 settings = Settings()
